@@ -5,6 +5,9 @@ function MovingAverage(count) {
 }
 
 MovingAverage.prototype.add = function(val) {
+  if (!isFinite(val) || isNaN(val)) {
+    return;
+  }
   this._value += val;
 };
 
@@ -13,6 +16,9 @@ MovingAverage.prototype.average = function() {
 };
 
 MovingAverage.prototype.remove = function(val) {
+  if (!isFinite(val) || isNaN(val)) {
+    return;
+  }
   this._value -= val;
 };
 
