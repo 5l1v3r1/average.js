@@ -4,4 +4,10 @@
 
 # TODO
 
- * Make this work.
+ * Test CenterAverage
+ * Benchmark CenterAverage
+ * Implement standard deviation routines
+
+# License
+
+See [LICENSE](LICENSE)

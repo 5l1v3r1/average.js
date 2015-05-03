@@ -37,7 +37,7 @@ CenterAverage.prototype.pushTime = function(time) {
     --this._negInfCount;
   }
   var idx = this._sortedTimes.add(time);
-  
+
   if (idx >= this._numRemove && idx < this._size - this._numRemove) {
     // |LLL|MMMM|HH | -> |LLL|MMMM|MHH|.
     this._average.add(time);
@@ -50,8 +50,6 @@ CenterAverage.prototype.pushTime = function(time) {
     // |LLL|MMMM|HH | -> either |LLL|LMMM|MHH| or |LLL|MMMM|MHH|
     this._average.remove(this._sortedTimes.get(this._size - this._numRemove));
   }
-
-  throw new Error('not yet implemented');
 };
 
 CenterAverage.prototype._removeOldestTime = function() {
@@ -74,7 +72,7 @@ CenterAverage.prototype._removeOldestTime = function() {
       this._average.remove(this._sortedTimes.get(newLowIndex));
     }
   }
-  if (removeIndex < this._size - this._numRemove) {
+  if (removeIndex < this._size - this._numRemove && this._numRemove > 0) {
     var newMiddleIndex = this._size - this._numRemove - 1;
     if (this._sortedTimes.count() > newMiddleIndex) {
       this._average.add(this._sortedTimes.get(newMiddleIndex));
