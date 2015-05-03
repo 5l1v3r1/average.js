@@ -31,7 +31,25 @@ CenterAverage.prototype.average = function() {
 CenterAverage.prototype.pushTime = function(time) {
   this._removeOldestTime();
 
-  // TODO: add the new time here.
+  if (time === Infinity) {
+    ++this._posInfCount;
+  } else if (time === -Infinity) {
+    --this._negInfCount;
+  }
+  var idx = this._sortedTimes.add(time);
+  
+  if (idx >= this._numRemove && idx < this._size - this._numRemove) {
+    // |LLL|MMMM|HH | -> |LLL|MMMM|MHH|.
+    this._average.add(time);
+  }
+  if (idx < this._numRemove) {
+    // |LLL|MMMM|HH | -> |LLL|LMMM|MHH|
+    this._average.add(this._sortedTimes.get(this._numRemove));
+  }
+  if (idx < this._size - this._numRemove && this._numRemove > 0) {
+    // |LLL|MMMM|HH | -> either |LLL|LMMM|MHH| or |LLL|MMMM|MHH|
+    this._average.remove(this._sortedTimes.get(this._size - this._numRemove));
+  }
 
   throw new Error('not yet implemented');
 };
@@ -45,9 +63,9 @@ CenterAverage.prototype._removeOldestTime = function() {
   }
 
   // this._average may have to be updated after removing the time, since
-  // |LLL|MMMMMMMM|HHH| might have become |LLM|MMMMMMMH|HH | or
-  // |LLL|MMMMMMMH|HH |. If it became |LLL|MMMMMMMM|HH |, nothing changed in the
-  // middle.
+  // |LLL|MMMMMMMM|HHH| might have become |LLM|MMMMMMMH|HH | (deleted an L) or
+  // |LLL|MMMMMMMH|HH | (deleted an M). If it became |LLL|MMMMMMMM|HH |
+  // (deleted an H), nothing changed in the average.
 
   var removedIndex = this._sortedTimes.remove(oldTime);
   if (removedIndex < this._numRemove) {
