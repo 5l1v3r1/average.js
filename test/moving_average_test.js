@@ -1,6 +1,6 @@
 var assert = require('assert');
-var numbers = require(__dirname + '/rand.js').slice(0, 2000);
-var MovingAverage = require(__dirname + '/../build/average.js').MovingAverage;
+var numbers = require('./rand.js');
+var MovingAverage = require('../build/average.js').MovingAverage;
 
 function computeAverage(numbers) {
   var sum = 0;
@@ -21,14 +21,12 @@ function testForSize(averageSize) {
     }
     var actualValue = moving.average();
     var expectedValue = computeAverage(numbers.slice(i-averageSize+1, i+1));
-    var error = Math.abs((actualValue - expectedValue) / actualValue);
-    if (error > 0.00001) {
-      throw new Error('values are not close enough');
-    }
+    var error = Math.abs(actualValue - expectedValue);
+    assert(error < 0.00001, 'values are not close enough');
   }
 }
 
-for (var size = 0; size < 15; ++size) {
+for (var size = 1; size < 15; ++size) {
   testForSize(size);
 }
 testForSize(50);

@@ -1,7 +1,8 @@
-var rand = require('fs').readFileSync(__dirname + '/rand.txt').toString();
-var comps = rand.split('\n');
+var fs = require('fs');
+var textFile = fs.readFileSync(__dirname + '/rand.txt').toString();
+var lines = textFile.split('\n');
 var nums = [];
-for (var i = 0; i < comps.length; ++i) {
-  nums[i] = parseInt(comps[i]);
+for (var i = 0; i < lines.length; ++i) {
+  nums[i] = parseInt(lines[i]);
 }
 module.exports = nums;
