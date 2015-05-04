@@ -41,7 +41,7 @@ CenterAverage.prototype.pushTime = function(time) {
     ++this._negInfCount;
   }
   var idx = this._sortedTimes.add(time);
-  
+
   if (this._sortedTimes.count() < this._size) {
     return;
   } else if (!wasFullBeforeAddition) {

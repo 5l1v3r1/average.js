@@ -31,7 +31,7 @@ function testCenterAverage(size, numRemove) {
   if (size === 1000) {
     totalUse = 10000;
   }
-  
+
   var avg = new CenterAverage(size, numRemove);
   for (var i = 0; i < totalUse; ++i) {
     avg.pushTime(numbers[i]);
