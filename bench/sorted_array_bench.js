@@ -2,11 +2,11 @@ var bench = require('./bench.js');
 var SortedArray = require('../build/average.js').SortedArray;
 
 function benchmarkSortedArray(size) {
-  var array = new SortedArray();
+  var array = new SortedArray(size);
   for (var i = 0; i < size; ++i) {
     array.add(i);
   }
-  bench('SortedArray(size=' + size + ')', size, function(count) {
+  bench('SortedArray(' + size + ')', size, function(count) {
     for (var i = 0; i < count; i += size) {
       for (var j = 0; j < size; ++j) {
         array.remove(j);

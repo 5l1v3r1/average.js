@@ -324,7 +324,7 @@
   // A SortedArray keeps an array of integers sorted. This could be implemented
   // as a binary tree in the future, but for now it uses a simple JS array.
   function SortedArray(size) {
-    this._list = new NumberList(size);
+    this._list = new BisectedNumberList(size);
   }
 
   // add inserts a value and returns the index it was inserted into.
@@ -378,6 +378,72 @@
       }
     }
     return begin + 1;
+  };
+
+  function BisectedNumberList(size) {
+    this._lower = [];
+    this._upper = [];
+    this._lowerSize = (size >>> 1);
+    this._upperSize = size - this._lowerSize;
+  }
+
+  BisectedNumberList.prototype.copy = function() {
+    var res = new BisectedNumberList(this._lowerSize + this._upperSize);
+    res._lower = this._lower.slice();
+    res._upper = this._upper.slice();
+    return res;
+  };
+
+  BisectedNumberList.prototype.count = function() {
+    return this._lower.length + this._upper.length;
+  };
+
+  BisectedNumberList.prototype.get = function(i) {
+    if (i < 0) {
+      throw new Error('out of bounds');
+    }
+    if (i < this._lowerSize) {
+      if (i >= this._lower.length) {
+        throw new Error('out of bounds');
+      }
+      return this._lower[i];
+    } else {
+      var idx = i - this._lowerSize;
+      if (idx >= this._upper.length) {
+        throw new Error('out of bounds');
+      }
+      return this._upper[this._upper.length - (idx + 1)];
+    }
+  };
+
+  BisectedNumberList.prototype.insert = function(i, val) {
+    if (i < 0) {
+      throw new Error('out of bounds');
+    }
+    if (i < this._lowerSize) {
+      if (this._lower.length === this._lowerSize) {
+        this._upper.push(this._lower.pop());
+      }
+      this._lower.splice(i, 0, val);
+    } else {
+      var idx = this._upper.length - (i - this._lowerSize);
+      this._upper.splice(idx, 0, val);
+    }
+    if (this._upper.length > this._upperSize) {
+      throw new Error('overflow');
+    }
+  };
+
+  BisectedNumberList.prototype.remove = function(i) {
+    if (i < this._lowerSize) {
+      this._lower.splice(i, 1);
+      if (this._upper.length > 0) {
+        this._lower.push(this._upper.pop());
+      }
+    } else {
+      var idx = this._upper.length - (i - this._lowerSize) - 1;
+      this._upper.splice(idx, 1);
+    }
   };
 
   function NumberList(size) {
