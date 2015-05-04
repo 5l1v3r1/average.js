@@ -36,28 +36,30 @@ function approxValueNeededForAverage(averager, requested) {
       maximumAverage = average;
     }
   }
-  
+
+  if (isNaN(minimumAverage) && isNaN(maximumAverage)) {
+    return NaN;
+  }
+
   // Perform a binary search.
   for (var i = 0; i < 64 && minimumValue < maximumValue; ++i) {
     var value = (minimumValue + maximumValue) / 2;
     var copy = averager.copy();
     copy.pushValue(value);
-    var average = averager.average();
-    if (isNaN(average)) {
-      return NaN;
+    var average = copy.average();
+    if (isNaN(average) || average > requested) {
+      maximumValue = value;
     } else if (average < requested) {
       minimumValue = value;
-    } else if (average > requested) {
-      maximumValue = value;
     } else {
       return value;
     }
   }
-  
+
   var result = (maximumValue + minimumValue) / 2;
   var resCopy = averager.copy();
-  averager.pushValue(result);
-  var resAverage = averager.average();
+  resCopy.pushValue(result);
+  var resAverage = resCopy.average();
   if (Math.abs(resAverage - requested) > 0.0001) {
     return NaN;
   }
@@ -104,7 +106,28 @@ function testCenterAverage(size, numRemove) {
 }
 
 function testValueNeededForAverage(size, numRemove) {
-  throw new Error('todo: implement this test...');
+  var chunkSize = size + 1;
+  for (var i = 0, max = numbers.length-chunkSize; i < max; i += chunkSize) {
+    var requested = numbers[i + size];
+    if (!isFinite(requested)) {
+      break;
+    }
+
+    var average = new CenterAverage(size, numRemove);
+    for (var j = i; j < i+size; ++j) {
+      average.pushValue(numbers[j]);
+    }
+    var needed = average.valueNeededForAverage(requested);
+
+    if (isNaN(needed)) {
+      assert(isNaN(approxValueNeededForAverage(average, requested)));
+      continue;
+    }
+
+    var copy = average.copy();
+    copy.pushValue(needed);
+    assert(Math.abs(copy.average() - requested) < 0.0001);
+  }
 }
 
 var sizes = [3, 5, 12, 50, 100, 1000];

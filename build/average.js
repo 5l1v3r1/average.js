@@ -153,27 +153,20 @@
       return (requested - average) * middleCount;
     }
 
-    if (shiftedVersion._posInfCount > this._numRemove+1 ||
+    if (shiftedVersion._posInfCount > this._numRemove ||
         shiftedVersion._negInfCount > this._numRemove) {
       return NaN;
     }
 
-    // Note that if we try to add a high value it will just go in as another H
-    // and not affect the average. Thus, the average of shiftedVersion is the
-    // upper bound for the next average.
-    if (requested > average) {
-      return NaN;
-    }
-
-    var highestMiddle = shiftedVersion._sortedValues[this._size -
-      (this._numRemove + 1)];
+    var highestMiddle = shiftedVersion._sortedValues.get(this._size -
+      (this._numRemove + 1));
     if (isFinite(highestMiddle) && average === requested) {
       // [LLL|MMMX|HH ], (sum of M + X)/count = requested, so we just push X to
       // get [LLL|MMMX|XHH].
       return highestMiddle;
     } else {
       // [LLL|MMMX|HH ], L <= result < X
-      var lowerBound = shiftedVersion._sortedValues[this._numRemove - 1];
+      var lowerBound = shiftedVersion._sortedValues.get(this._numRemove - 1);
       var mSum = average*middleCount;
       if (isFinite(highestMiddle)) {
         mSum -= highestMiddle;
