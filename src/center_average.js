@@ -4,6 +4,10 @@
 //
 // If there are more than numRemove values of +Inf or -Inf, the average is NaN.
 function CenterAverage(size, numRemove) {
+  if (numRemove*2 >= size) {
+    throw new Error('numRemove is too large');
+  }
+
   this._size = size;
   this._numRemove = numRemove;
 
@@ -11,15 +15,15 @@ function CenterAverage(size, numRemove) {
   this._negInfCount = 0;
 
   this._average = new MovingAverage(size - numRemove*2);
-  this._chronologicalTimes = new NumberStack(size);
-  this._sortedTimes = new SortedArray();
+  this._chronologicalValues = new NumberStack(size);
+  this._sortedValues = new SortedArray();
 }
 
 // average returns the current average or NaN if there were not enough actual
 // values.
 CenterAverage.prototype.average = function() {
   if (Math.max(this._posInfCount, this._negInfCount) > this._numRemove ||
-      this._sortedTimes.count() < this._size) {
+      this._sortedValues.count() < this._size) {
     return NaN;
   } else {
     return this._average.average();
@@ -32,28 +36,28 @@ CenterAverage.prototype.copy = function() {
   res._posInfCount = this._posInfCount;
   res._negInfCount = this._negInfCount;
   res._average = this._average.copy();
-  res._chronologicalTimes = this._chronologicalTimes.copy();
-  res._sortedTimes = this._sortedTimes.copy();
+  res._chronologicalValues = this._chronologicalValues.copy();
+  res._sortedValues = this._sortedValues.copy();
   return res;
 };
 
-// pushTime adds the next time to the rolling average and removes the very
-// first time.
-CenterAverage.prototype.pushTime = function(time) {
-  var wasFullBeforeAddition = (this._sortedTimes.count() === this._size);
+// pushValue adds the next value to the rolling average and removes the very
+// first value.
+CenterAverage.prototype.pushValue = function(value) {
+  var wasFullBeforeAddition = (this._sortedValues.count() === this._size);
   if (wasFullBeforeAddition) {
-    this._removeOldestTime();
+    this._removeOldestValue();
   }
 
-  this._chronologicalTimes.push(time);
-  if (time === Infinity) {
+  this._chronologicalValues.push(value);
+  if (value === Infinity) {
     ++this._posInfCount;
-  } else if (time === -Infinity) {
+  } else if (value === -Infinity) {
     ++this._negInfCount;
   }
-  var idx = this._sortedTimes.add(time);
+  var idx = this._sortedValues.add(value);
 
-  if (this._sortedTimes.count() < this._size) {
+  if (this._sortedValues.count() < this._size) {
     return;
   } else if (!wasFullBeforeAddition) {
     this._computeFirstAverage();
@@ -62,52 +66,52 @@ CenterAverage.prototype.pushTime = function(time) {
 
   if (idx >= this._numRemove && idx < this._size - this._numRemove) {
     // |LLL|MMMM|HH | -> |LLL|MMMM|MHH|.
-    this._average.add(time);
+    this._average.add(value);
   }
   if (idx < this._numRemove) {
     // |LLL|MMMM|HH | -> |LLL|LMMM|MHH|
-    this._average.add(this._sortedTimes.get(this._numRemove));
+    this._average.add(this._sortedValues.get(this._numRemove));
   }
   if (idx < this._size - this._numRemove && this._numRemove > 0) {
     // |LLL|MMMM|HH | -> either |LLL|LMMM|MHH| or |LLL|MMMM|MHH|
-    this._average.remove(this._sortedTimes.get(this._size - this._numRemove));
+    this._average.remove(this._sortedValues.get(this._size - this._numRemove));
   }
 };
 
 CenterAverage.prototype._computeFirstAverage = function() {
   for (var i = this._numRemove; i < this._size-this._numRemove; ++i) {
-    this._average.add(this._sortedTimes.get(i));
+    this._average.add(this._sortedValues.get(i));
   }
 };
 
-CenterAverage.prototype._removeOldestTime = function() {
-  var oldTime = this._chronologicalTimes.shift();
-  if (oldTime === Infinity) {
+CenterAverage.prototype._removeOldestValue = function() {
+  var oldValue = this._chronologicalValues.shift();
+  if (oldValue === Infinity) {
     --this._posInfCount;
-  } else if (oldTime === -Infinity) {
+  } else if (oldValue === -Infinity) {
     --this._negInfCount;
   }
 
-  // this._average may have to be updated after removing the time, since
+  // this._average may have to be updated after removing the value, since
   // |LLL|MMMMMMMM|HHH| might have become |LLM|MMMMMMMH|HH | (deleted an L) or
   // |LLL|MMMMMMMH|HH | (deleted an M). If it became |LLL|MMMMMMMM|HH |
   // (deleted an H), nothing changed in the average.
 
-  var removedIndex = this._sortedTimes.remove(oldTime);
+  var removedIndex = this._sortedValues.remove(oldValue);
   if (removedIndex >= this._numRemove &&
       removedIndex < this._size - this._numRemove) {
-    this._average.remove(oldTime);
+    this._average.remove(oldValue);
   }
   if (removedIndex < this._numRemove) {
     var newLowIndex = this._numRemove - 1;
-    if (this._sortedTimes.count() > newLowIndex) {
-      this._average.remove(this._sortedTimes.get(newLowIndex));
+    if (this._sortedValues.count() > newLowIndex) {
+      this._average.remove(this._sortedValues.get(newLowIndex));
     }
   }
   if (removedIndex < this._size - this._numRemove && this._numRemove > 0) {
     var newMiddleIndex = this._size - this._numRemove - 1;
-    if (this._sortedTimes.count() > newMiddleIndex) {
-      this._average.add(this._sortedTimes.get(newMiddleIndex));
+    if (this._sortedValues.count() > newMiddleIndex) {
+      this._average.add(this._sortedValues.get(newMiddleIndex));
     }
   }
 };

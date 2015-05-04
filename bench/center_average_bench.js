@@ -3,11 +3,11 @@ var numbers = require('../test/rand.js');
 var CenterAverage = require('../build/average.js').CenterAverage;
 
 function benchmarkCenterAverage(size, numRemove) {
-  var name = 'CenterAverage(' + size + ', ' + numRemove + ').pushTime';
+  var name = 'CenterAverage(' + size + ', ' + numRemove + ').pushValue';
   bench(name, function(count) {
     var avg = new CenterAverage(size, numRemove);
     for (var i = 0; i < count; ++i) {
-      avg.pushTime(numbers[i % numbers.length]);
+      avg.pushValue(numbers[i % numbers.length]);
     }
   });
 }

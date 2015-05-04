@@ -34,7 +34,7 @@ function testCenterAverage(size, numRemove) {
 
   var avg = new CenterAverage(size, numRemove);
   for (var i = 0; i < totalUse; ++i) {
-    avg.pushTime(numbers[i]);
+    avg.pushValue(numbers[i]);
     if (i >= size-1) {
       var actual = avg.average();
       var expected = computeCenterAverage(i, size, numRemove);
