@@ -134,7 +134,8 @@
       return NaN;
     }
 
-    // shiftedVersion will be missing exactly 1 value.
+    // shiftedVersion will be missing exactly 1 value. Its state can be denoted as
+    // [LLL...|MMMM...|HH... ] (note the missing H).
     var shiftedVersion = this;
     if (this._sortedValues.count() === this._size) {
       shiftedVersion = this.copy();
@@ -142,26 +143,47 @@
     }
 
     var average = shiftedVersion._average.average();
+    var middleCount = this._size - this._numRemove*2;
 
+    // If numRemove is 0, it is usually possible to get any value.
     if (this._numRemove === 0) {
       if (!isFinite(average)) {
         return NaN;
       }
-      return (requested - average) * 4;
+      return (requested - average) * middleCount;
     }
 
-    // Right now, we have [LLL|MMMM|HH ]. Note that if we try to add a higher
-    // value, it will just go in as another H and not affect the average. Thus,
-    // the `average` variable is the maximum value for the next average regardless
-    // of the argument to pushValue.
-
-    if (average < requested) {
+    if (shiftedVersion._posInfCount > this._numRemove+1 ||
+        shiftedVersion._negInfCount > this._numRemove) {
       return NaN;
     }
-    if (average === requested) {
-      // [LLL|MMMM|HH ], (sum of M)/count = requested, so we just push the last M
-      // value to get [LLL|MMMX|XHH].
-      return shiftedVersion._sortedValues[this._size - this._numRemove - 1];
+
+    // Note that if we try to add a high value it will just go in as another H
+    // and not affect the average. Thus, the average of shiftedVersion is the
+    // upper bound for the next average.
+    if (requested > average) {
+      return NaN;
+    }
+
+    var highestMiddle = shiftedVersion._sortedValues[this._size -
+      (this._numRemove + 1)];
+    if (isFinite(highestMiddle) && average === requested) {
+      // [LLL|MMMX|HH ], (sum of M + X)/count = requested, so we just push X to
+      // get [LLL|MMMX|XHH].
+      return highestMiddle;
+    } else {
+      // [LLL|MMMX|HH ], L <= result < X
+      var lowerBound = shiftedVersion._sortedValues[this._numRemove - 1];
+      var mSum = average*middleCount;
+      if (isFinite(highestMiddle)) {
+        mSum -= highestMiddle;
+      }
+      var newValue = requested*middleCount - mSum;
+      if (newValue < lowerBound || newValue > highestMiddle) {
+        return NaN;
+      } else {
+        return newValue;
+      }
     }
   };
 

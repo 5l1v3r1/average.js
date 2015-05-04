@@ -78,6 +78,67 @@ CenterAverage.prototype.pushValue = function(value) {
   }
 };
 
+// valueNeededForAverage computes a value which could be passed to pushValue()
+// in order to have a given average value. This returns NaN if such a number
+// does not exist.
+CenterAverage.prototype.valueNeededForAverage = function(requested) {
+  if (this._sortedValues.count() < this._size-1) {
+    return NaN;
+  }
+
+  // shiftedVersion will be missing exactly 1 value. Its state can be denoted as
+  // [LLL...|MMMM...|HH... ] (note the missing H).
+  var shiftedVersion = this;
+  if (this._sortedValues.count() === this._size) {
+    shiftedVersion = this.copy();
+    shiftedVersion._removeOldestValue();
+  }
+
+  var average = shiftedVersion._average.average();
+  var middleCount = this._size - this._numRemove*2;
+
+  // If numRemove is 0, it is usually possible to get any value.
+  if (this._numRemove === 0) {
+    if (!isFinite(average)) {
+      return NaN;
+    }
+    return (requested - average) * middleCount;
+  }
+  
+  if (shiftedVersion._posInfCount > this._numRemove+1 ||
+      shiftedVersion._negInfCount > this._numRemove) {
+    return NaN;
+  }
+
+  // Note that if we try to add a high value it will just go in as another H
+  // and not affect the average. Thus, the average of shiftedVersion is the
+  // upper bound for the next average.
+  if (requested > average) {
+    return NaN;
+  }
+
+  var highestMiddle = shiftedVersion._sortedValues[this._size -
+    (this._numRemove + 1)];
+  if (isFinite(highestMiddle) && average === requested) {
+    // [LLL|MMMX|HH ], (sum of M + X)/count = requested, so we just push X to
+    // get [LLL|MMMX|XHH].
+    return highestMiddle;
+  } else {
+    // [LLL|MMMX|HH ], L <= result < X
+    var lowerBound = shiftedVersion._sortedValues[this._numRemove - 1];
+    var mSum = average*middleCount;
+    if (isFinite(highestMiddle)) {
+      mSum -= highestMiddle;
+    }
+    var newValue = requested*middleCount - mSum;
+    if (newValue < lowerBound || newValue > highestMiddle) {
+      return NaN;
+    } else {
+      return newValue;
+    }
+  }
+};
+
 CenterAverage.prototype._computeFirstAverage = function() {
   for (var i = this._numRemove; i < this._size-this._numRemove; ++i) {
     this._average.add(this._sortedValues.get(i));

@@ -11,6 +11,59 @@ for (var i = 0; i < numbers.length; ++i) {
   }
 }
 
+function approxValueNeededForAverage(averager, requested) {
+  // Find crude boundaries.
+  var minimumValue = Math.pow(2, -64);
+  var minimumAverage = NaN;
+  var maximumValue = Math.pow(2, 64);
+  var maximumAverage = NaN;
+  for (var i = -63; i <= 63; ++i) {
+    var value = Math.pow(2, i);
+    var copy = averager.copy();
+    copy.pushValue(value);
+    var average = copy.average();
+    if (isNaN(average)) {
+      continue;
+    }
+    if ((isNaN(minimumAverage) || average > minimumAverage) &&
+        average <= requested) {
+      minimumValue = value;
+      minimumAverage = average;
+    }
+    if ((isNaN(maximumAverage) || average < maximumAverage) &&
+        average >= requested) {
+      maximumValue = value;
+      maximumAverage = average;
+    }
+  }
+  
+  // Perform a binary search.
+  for (var i = 0; i < 64 && minimumValue < maximumValue; ++i) {
+    var value = (minimumValue + maximumValue) / 2;
+    var copy = averager.copy();
+    copy.pushValue(value);
+    var average = averager.average();
+    if (isNaN(average)) {
+      return NaN;
+    } else if (average < requested) {
+      minimumValue = value;
+    } else if (average > requested) {
+      maximumValue = value;
+    } else {
+      return value;
+    }
+  }
+  
+  var result = (maximumValue + minimumValue) / 2;
+  var resCopy = averager.copy();
+  averager.pushValue(result);
+  var resAverage = averager.average();
+  if (Math.abs(resAverage - requested) > 0.0001) {
+    return NaN;
+  }
+  return result;
+}
+
 function computeCenterAverage(i, size, numRemove) {
   var subset = numbers.slice(i-size+1, i+1);
   subset.sort(function(a, b) {
@@ -50,10 +103,16 @@ function testCenterAverage(size, numRemove) {
   }
 }
 
-testCenterAverage(3, 0);
-testCenterAverage(5, 1);
-testCenterAverage(12, 1);
-testCenterAverage(50, 3);
-testCenterAverage(100, 5);
-testCenterAverage(1000, 50);
+function testValueNeededForAverage(size, numRemove) {
+  throw new Error('todo: implement this test...');
+}
+
+var sizes = [3, 5, 12, 50, 100, 1000];
+var numRemoves = [0, 1, 1, 3, 5, 50];
+for (var i = 0; i < sizes.length; ++i) {
+  var size = sizes[i];
+  var numRemove = numRemoves[i];
+  testCenterAverage(size, numRemove);
+  testValueNeededForAverage(size, numRemove);
+}
 console.log('PASS');
