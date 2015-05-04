@@ -81,28 +81,6 @@ function computeCenterAverage(i, size, numRemove) {
   return sum / (size - numRemove*2)
 }
 
-function computeStandardDeviation(i, size, numRemove) {
-  var subset = numbers.slice(i, i+size);
-  subset.sort(function(a, b) {
-    return a - b;
-  });
-
-  var sum = 0;
-  for (var i = numRemove; i < size-numRemove; ++i) {
-    if (!isFinite(subset[i])) {
-      return NaN;
-    }
-    sum += subset[i];
-  }
-  var average = sum / (size - numRemove*2)
-
-  var diffSquares = 0;
-  for (var i = numRemove; i < size-numRemove; ++i) {
-    diffSquares += Math.pow(subset[i] - average, 2);
-  }
-  return Math.sqrt(diffSquares / (size - numRemove*2));
-}
-
 function testCenterAverage(size, numRemove) {
   var totalUse = numbers.length;
   if (size === 1000) {
@@ -124,22 +102,6 @@ function testCenterAverage(size, numRemove) {
     if (!(i & 0xfff)) {
       avg = avg.copy();
     }
-  }
-}
-
-function testStandardDeviation(size, numRemove) {
-  for (var i = 0; i < numbers.length-size; i += size) {
-    var avg = new CenterAverage(size, numRemove);
-    for (var j = i; j < i+size; ++j) {
-      avg.pushValue(numbers[j]);
-    }
-    var actual = avg.standardDeviation();
-    var expected = computeStandardDeviation(i, size, numRemove);
-    if (isNaN(actual) && isNaN(expected)) {
-      continue;
-    }
-    assert.equal(isNaN(actual), isNaN(expected));
-    assert(Math.abs(actual - expected) < 0.0001);
   }
 }
 
@@ -174,7 +136,6 @@ for (var i = 0; i < sizes.length; ++i) {
   var size = sizes[i];
   var numRemove = numRemoves[i];
   testCenterAverage(size, numRemove);
-  testStandardDeviation(size, numRemove);
   testValueNeededForAverage(size, numRemove);
 }
 console.log('PASS');

@@ -12,22 +12,8 @@ function benchmarkCenterAverage(size, numRemove) {
   });
 }
 
-function benchmarkStandardDeviation(size, numRemove) {
-  var name = 'CenterAverage(' + size + ', ' + numRemove + ').standardDeviation';
-  var avg = new CenterAverage(size, numRemove);
-  for (var i = 0; i < size; ++i) {
-    avg.pushValue(i);
-  }
-  bench(name, function(count) {
-    while (count--) {
-      avg.standardDeviation();
-    }
-  });
-}
-
 var sizes = [1, 3, 5, 12, 50, 100, 1000];
 var numRemove = [0, 0, 1, 1, 3, 5, 50];
 for (var i = 0; i < sizes.length; ++i) {
   benchmarkCenterAverage(sizes[i], numRemove[i]);
-  benchmarkStandardDeviation(sizes[i], numRemove[i]);
 }
