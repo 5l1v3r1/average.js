@@ -87,7 +87,7 @@ CenterAverage.prototype.standardDeviation = function() {
   var squareDiffs = 0;
   var max = this._size - this._numRemove;
   for (var i = this._numRemove; i < max; ++i) {
-    squareDiffs += Math.pow(average - this._sortedValues.get(i));
+    squareDiffs += Math.pow(average - this._sortedValues.get(i), 2);
   }
   var variance = squareDiffs / (this._size - this._numRemove*2);
   return Math.sqrt(variance);
