@@ -15,6 +15,12 @@ MovingAverage.prototype.average = function() {
   return this._value / this._count;
 };
 
+MovingAverage.prototype.copy = function() {
+  var res = new MovingAverage(this._count);
+  res._value = this._value;
+  return res;
+};
+
 MovingAverage.prototype.remove = function(val) {
   if (!isFinite(val) || isNaN(val)) {
     return;

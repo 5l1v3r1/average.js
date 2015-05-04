@@ -74,6 +74,17 @@
     }
   };
 
+  // copy generates a copy of the CenterAverage in this current state.
+  CenterAverage.prototype.copy = function() {
+    var res = new CenterAverage(this._size, this._numRemove);
+    res._posInfCount = this._posInfCount;
+    res._negInfCount = this._negInfCount;
+    res._average = this._average.copy();
+    res._chronologicalTimes = this._chronologicalTimes.copy();
+    res._sortedTimes = this._sortedTimes.copy();
+    return res;
+  };
+
   // pushTime adds the next time to the rolling average and removes the very
   // first time.
   CenterAverage.prototype.pushTime = function(time) {
@@ -167,6 +178,12 @@
     return this._value / this._count;
   };
 
+  MovingAverage.prototype.copy = function() {
+    var res = new MovingAverage(this._count);
+    res._value = this._value;
+    return res;
+  };
+
   MovingAverage.prototype.remove = function(val) {
     if (!isFinite(val) || isNaN(val)) {
       return;
@@ -186,6 +203,15 @@
       this._array[i] = 0;
     }
   }
+
+  NumberStack.prototype.copy = function() {
+    var res = new NumberStack(0);
+    res._array = this._array.slice();
+    res._start = this._start;
+    res._end = this._end;
+    res._count = this._count;
+    return res;
+  };
 
   NumberStack.prototype.count = function() {
     return this._count;
@@ -238,6 +264,13 @@
   // count returns the number of items in the list.
   SortedArray.prototype.count = function() {
     return this._list.length;
+  };
+
+  // copy duplicates the sorted array and returns the duplicate.
+  SortedArray.prototype.copy = function() {
+    var res = new SortedArray();
+    res._list = this._list.slice();
+    return res;
   };
 
   // get returns the number at a given index.

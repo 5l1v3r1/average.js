@@ -43,6 +43,10 @@ function testCenterAverage(size, numRemove) {
         assert(Math.abs(actual - expected) < 0.00001);
       }
     }
+    // Make the occasional copy just to make sure copy() works.
+    if (!(i & 0xfff)) {
+      avg = avg.copy();
+    }
   }
 }
 

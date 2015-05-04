@@ -10,6 +10,15 @@ function NumberStack(capacity) {
   }
 }
 
+NumberStack.prototype.copy = function() {
+  var res = new NumberStack(0);
+  res._array = this._array.slice();
+  res._start = this._start;
+  res._end = this._end;
+  res._count = this._count;
+  return res;
+};
+
 NumberStack.prototype.count = function() {
   return this._count;
 };

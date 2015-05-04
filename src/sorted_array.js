@@ -16,6 +16,13 @@ SortedArray.prototype.count = function() {
   return this._list.length;
 };
 
+// copy duplicates the sorted array and returns the duplicate.
+SortedArray.prototype.copy = function() {
+  var res = new SortedArray();
+  res._list = this._list.slice();
+  return res;
+};
+
 // get returns the number at a given index.
 SortedArray.prototype.get = function(index) {
   if (index < 0 || index >= this._list.length) {

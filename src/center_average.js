@@ -26,6 +26,17 @@ CenterAverage.prototype.average = function() {
   }
 };
 
+// copy generates a copy of the CenterAverage in this current state.
+CenterAverage.prototype.copy = function() {
+  var res = new CenterAverage(this._size, this._numRemove);
+  res._posInfCount = this._posInfCount;
+  res._negInfCount = this._negInfCount;
+  res._average = this._average.copy();
+  res._chronologicalTimes = this._chronologicalTimes.copy();
+  res._sortedTimes = this._sortedTimes.copy();
+  return res;
+};
+
 // pushTime adds the next time to the rolling average and removes the very
 // first time.
 CenterAverage.prototype.pushTime = function(time) {
