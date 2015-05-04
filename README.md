@@ -4,9 +4,10 @@
 
 # TODO
 
- * Test CenterAverage
- * Benchmark CenterAverage
  * Implement standard deviation routines
+ * Implement the rest of the stuff for cubezapp
+   * Time to beat
+   * List times and put removed ones in parens
 
 # License
 
