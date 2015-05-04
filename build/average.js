@@ -126,6 +126,21 @@
     }
   };
 
+  // standardDeviation computes the standard deviation of the center values.
+  CenterAverage.prototype.standardDeviation = function() {
+    var average = this.average();
+    if (isNaN(average)) {
+      return NaN;
+    }
+    var squareDiffs = 0;
+    var max = this._size - this._numRemove;
+    for (var i = this._numRemove; i < max; ++i) {
+      squareDiffs += Math.pow(average - this._sortedValues.get(i));
+    }
+    var variance = squareDiffs / (this._size - this._numRemove*2);
+    return Math.sqrt(variance);
+  };
+
   // valueNeededForAverage computes a value which could be passed to pushValue()
   // in order to have a given average value. This returns NaN if such a number
   // does not exist.
