@@ -27,7 +27,7 @@ SortedArray.prototype.get = function(index) {
 // remove removes a value and returns the index where the value was. It returns
 // -1 if the value was not found.
 SortedArray.prototype.remove = function(value) {
-  var idx = this._findValue(value);
+  var idx = this._findIndex(value);
   if (idx === this._list.length || this._list[idx] !== value) {
     return -1;
   } else {

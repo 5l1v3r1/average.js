@@ -19,22 +19,34 @@ function arrayValue(sortedArray) {
 }
 
 function testForSize(size) {
-  var inc = Math.max(size, 1);
-  for (var i = 0; i < numbers.length-size; i += inc) {
-    var subset = numbers.slice(i, i+size);
-    var sortedArray = new SortedArray();
-    for (var j = 0; j < subset.length; ++j) {
-      sortedArray.add(subset[j]);
+  var sortedArray = new SortedArray();
+  var array = [];
+  for (var i = 0; i < numbers.length; ++i) {
+    var remove;
+    if (array.length === size) {
+      remove = true;
+    } else if (array.length === 0) {
+      remove = false;
+    } else {
+      remove = ((numbers[i] & 1) === 0);
     }
-    subset.sort(function(a, b) {
-      return a - b;
-    });
-    assert.deepEqual(subset, arrayValue(sortedArray));
+    if (remove) {
+      var idx = Math.floor(Math.random() * array.length);
+      var value = array[idx];
+      array.splice(idx, 1);
+      sortedArray.remove(value);
+    } else {
+      var value = numbers[i];
+      array.push(value);
+      sortedArray.add(value);
+      array.sort(function(a, b) {
+        return a - b;
+      });
+    }
+    assert.deepEqual(array, arrayValue(sortedArray));
   }
 }
 
-for (var i = 0; i < 3; ++i) {
-  testForSize(i);
-}
+testForSize(1);
 testForSize(50);
 console.log('PASS');

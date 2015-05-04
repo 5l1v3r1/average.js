@@ -77,14 +77,25 @@
   // pushTime adds the next time to the rolling average and removes the very
   // first time.
   CenterAverage.prototype.pushTime = function(time) {
-    this._removeOldestTime();
+    var wasFullBeforeAddition = (this._sortedTimes.count() === this._size);
+    if (wasFullBeforeAddition) {
+      this._removeOldestTime();
+    }
 
+    this._chronologicalTimes.push(time);
     if (time === Infinity) {
       ++this._posInfCount;
     } else if (time === -Infinity) {
-      --this._negInfCount;
+      ++this._negInfCount;
     }
     var idx = this._sortedTimes.add(time);
+
+    if (this._sortedTimes.count() < this._size) {
+      return;
+    } else if (!wasFullBeforeAddition) {
+      this._computeFirstAverage();
+      return;
+    }
 
     if (idx >= this._numRemove && idx < this._size - this._numRemove) {
       // |LLL|MMMM|HH | -> |LLL|MMMM|MHH|.
@@ -97,6 +108,12 @@
     if (idx < this._size - this._numRemove && this._numRemove > 0) {
       // |LLL|MMMM|HH | -> either |LLL|LMMM|MHH| or |LLL|MMMM|MHH|
       this._average.remove(this._sortedTimes.get(this._size - this._numRemove));
+    }
+  };
+
+  CenterAverage.prototype._computeFirstAverage = function() {
+    for (var i = this._numRemove; i < this._size-this._numRemove; ++i) {
+      this._average.add(this._sortedTimes.get(i));
     }
   };
 
@@ -114,13 +131,17 @@
     // (deleted an H), nothing changed in the average.
 
     var removedIndex = this._sortedTimes.remove(oldTime);
+    if (removedIndex >= this._numRemove &&
+        removedIndex < this._size - this._numRemove) {
+      this._average.remove(oldTime);
+    }
     if (removedIndex < this._numRemove) {
       var newLowIndex = this._numRemove - 1;
       if (this._sortedTimes.count() > newLowIndex) {
         this._average.remove(this._sortedTimes.get(newLowIndex));
       }
     }
-    if (removeIndex < this._size - this._numRemove && this._numRemove > 0) {
+    if (removedIndex < this._size - this._numRemove && this._numRemove > 0) {
       var newMiddleIndex = this._size - this._numRemove - 1;
       if (this._sortedTimes.count() > newMiddleIndex) {
         this._average.add(this._sortedTimes.get(newMiddleIndex));
@@ -230,7 +251,7 @@
   // remove removes a value and returns the index where the value was. It returns
   // -1 if the value was not found.
   SortedArray.prototype.remove = function(value) {
-    var idx = this._findValue(value);
+    var idx = this._findIndex(value);
     if (idx === this._list.length || this._list[idx] !== value) {
       return -1;
     } else {
