@@ -16,7 +16,7 @@ function CenterAverage(size, numRemove) {
 
   this._average = new MovingAverage(size - numRemove*2);
   this._chronologicalValues = new NumberStack(size);
-  this._sortedValues = new SortedArray();
+  this._sortedValues = new SortedArray(size);
 }
 
 // average returns the current average or NaN if there were not enough actual

@@ -19,7 +19,7 @@ function arrayValue(sortedArray) {
 }
 
 function testForSize(size) {
-  var sortedArray = new SortedArray();
+  var sortedArray = new SortedArray(size);
   var array = [];
   for (var i = 0; i < numbers.length; ++i) {
     var remove;
@@ -48,5 +48,6 @@ function testForSize(size) {
 }
 
 testForSize(1);
+testForSize(3);
 testForSize(50);
 console.log('PASS');
