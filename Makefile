@@ -9,5 +9,8 @@ build:
 clean:
 	rm -rf build
 
+bench: build/average.js
+	sh bench.sh
+
 test: build/average.js
 	sh test.sh
