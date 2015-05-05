@@ -1,4 +1,4 @@
-// average.js version 1.0.0
+// average.js version 1.0.1
 //
 // Copyright (c) 2015, Alexander Nichol.
 // All rights reserved.
