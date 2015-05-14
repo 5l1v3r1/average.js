@@ -11,16 +11,16 @@ SortedArray.prototype.add = function(value) {
   return idx;
 };
 
-// count returns the number of items in the list.
-SortedArray.prototype.count = function() {
-  return this._list.count();
-};
-
 // copy duplicates the sorted array and returns the duplicate.
 SortedArray.prototype.copy = function() {
   var res = new SortedArray();
   res._list = this._list.copy();
   return res;
+};
+
+// count returns the number of items in the list.
+SortedArray.prototype.count = function() {
+  return this._list.count();
 };
 
 // get returns the number at a given index.
