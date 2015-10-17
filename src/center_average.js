@@ -109,6 +109,11 @@ CenterAverage.prototype.valueNeededForAverage = function(requested) {
     shiftedVersion._removeOldestValue();
   }
 
+  if (shiftedVersion._posInfCount > this._numRemove ||
+      shiftedVersion._negInfCount > this._numRemove) {
+    return NaN;
+  }
+
   var average = shiftedVersion._average.average();
   var middleCount = this._size - this._numRemove*2;
 
@@ -118,11 +123,6 @@ CenterAverage.prototype.valueNeededForAverage = function(requested) {
       return NaN;
     }
     return (requested - average) * middleCount;
-  }
-
-  if (shiftedVersion._posInfCount > this._numRemove ||
-      shiftedVersion._negInfCount > this._numRemove) {
-    return NaN;
   }
 
   var highestMiddle = shiftedVersion._sortedValues.get(this._size -
