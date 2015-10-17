@@ -168,6 +168,14 @@ function testValueNeededForAverage(size, numRemove) {
   }
 }
 
+function testValueNeededForAverageDNFMO3() {
+  var average = new CenterAverage(3, 0);
+  average.pushValue(20);
+  average.pushValue(30);
+  average.pushValue(Infinity);
+  assert(isNaN(average.valueNeededForAverage(25)));
+}
+
 var sizes = [3, 5, 12, 50, 100, 1000];
 var numRemoves = [0, 1, 1, 3, 5, 50];
 for (var i = 0; i < sizes.length; ++i) {
@@ -177,4 +185,5 @@ for (var i = 0; i < sizes.length; ++i) {
   testStandardDeviation(size, numRemove);
   testValueNeededForAverage(size, numRemove);
 }
+testValueNeededForAverageDNFMO3();
 console.log('PASS');
