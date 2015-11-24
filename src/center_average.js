@@ -41,7 +41,7 @@ CenterAverage.prototype.copy = function() {
   return res;
 };
 
-// integerValueForAverageBelow computes the highest positive integer value
+// integralValueForAverageBelow computes the highest positive integer value
 // which could be passed to pushValue() while keeping the total average below a
 // certain value.
 // If no such integer exists, this returns NaN.
