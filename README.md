@@ -32,10 +32,6 @@ The class implements the following methods:
  * standardDeviation() - number - get the standard deviation of the times in the window, excluding the lowest and highest values which were omitted from the average.
  * valueNeededForAverage(number) - number - compute a value which could be supplied to pushValue() in order for the next average() to be the passed value. If no value exists, this returns NaN.
 
-# TODO
-
- * Add a `integralValueForAverageBelow()` method to CenterAverage in order to avoid certain edge cases on Cubezapp.
-
 # License
 
 See [LICENSE](LICENSE)

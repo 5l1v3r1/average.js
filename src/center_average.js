@@ -41,6 +41,63 @@ CenterAverage.prototype.copy = function() {
   return res;
 };
 
+// integerValueForAverageBelow computes the highest positive integer value
+// which could be passed to pushValue() while keeping the total average below a
+// certain value.
+// If no such integer exists, this returns NaN.
+CenterAverage.prototype.integralValueForAverageBelow = function(target) {
+  // TODO: optimize this.
+
+  if (this._sortedValues.count() < this._size-1) {
+    return NaN;
+  }
+
+  var low = 0;
+  var high = 1;
+
+  // Verify that the lower bound even *works*.
+  var tempCenter = this.copy();
+  tempCenter.pushValue(low);
+  var tempAvg = tempCenter.average();
+  if (isNaN(tempAvg) || tempAvg >= target) {
+    return NaN;
+  }
+
+  // Compute the upper bound.
+  for (var i = 0; i < 64; ++i) {
+    var newAverage = this.copy();
+    newAverage.pushValue(high);
+    var avg = newAverage.average();
+    if (isNaN(avg)) {
+      return NaN;
+    } else if (avg >= x) {
+      break;
+    }
+    high *= 2;
+  }
+
+  while (low+1 < high) {
+    var mid = Math.floor((low + high) / 2);
+    var newAverage = this.copy();
+    newAverage.pushValue(mid);
+    var avg = newAverage.average();
+    if (isNaN(avg)) {
+      throw new Error('impossible NaN result');
+    }
+    if (avg < x) {
+      low = mid;
+    } else if (avg >= x) {
+      high = mid;
+    }
+  }
+
+  if (high <= low) {
+    throw new Error('impossible result from binary search');
+  }
+
+  return low;
+};
+
 // pushValue adds the next value to the rolling average and removes the very
 // first value.
 CenterAverage.prototype.pushValue = function(value) {
