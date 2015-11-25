@@ -28,6 +28,7 @@ The class implements the following methods:
 
  * average() - number - get the current average. If no average is available, or if the average contains infinite values, NaN is returned.
  * copy() - CenterAverage - create a deep copy of this average.
+ * integralValueForAverageBelow(number) - number - compute a positive integer value which could be supplied to pushValue() in order for the next average() to be less than the passed value. If no such value exists, this returns NaN. If all positive integers meet the criterion, this returns Infinity.
  * pushValue(number) - void - add a new value to the rolling average. If the window was full, this will consequently remove the oldest value from the window.
  * standardDeviation() - number - get the standard deviation of the times in the window, excluding the lowest and highest values which were omitted from the average.
  * valueNeededForAverage(number) - number - compute a value which could be supplied to pushValue() in order for the next average() to be the passed value. If no value exists, this returns NaN.

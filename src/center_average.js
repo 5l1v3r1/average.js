@@ -45,6 +45,7 @@ CenterAverage.prototype.copy = function() {
 // which could be passed to pushValue() while keeping the total average below a
 // certain value.
 // If no such integer exists, this returns NaN.
+// If any integer value yields a satisfactory average, this returns Infinity.
 CenterAverage.prototype.integralValueForAverageBelow = function(target) {
   // TODO: optimize this.
 
@@ -64,29 +65,33 @@ CenterAverage.prototype.integralValueForAverageBelow = function(target) {
   }
 
   // Compute the upper bound.
-  for (var i = 0; i < 64; ++i) {
+  var i;
+  for (i = 0; i < 51; ++i) {
     var newAverage = this.copy();
     newAverage.pushValue(high);
     var avg = newAverage.average();
     if (isNaN(avg)) {
       return NaN;
-    } else if (avg >= x) {
+    } else if (avg >= target) {
       break;
     }
     high *= 2;
   }
+  if (i === 51) {
+    return Infinity;
+  }
 
   while (low+1 < high) {
-    var mid = Math.floor((low + high) / 2);
+    var mid = Math.round((low + high) / 2);
     var newAverage = this.copy();
     newAverage.pushValue(mid);
     var avg = newAverage.average();
     if (isNaN(avg)) {
       throw new Error('impossible NaN result');
     }
-    if (avg < x) {
+    if (avg < target) {
       low = mid;
-    } else if (avg >= x) {
+    } else if (avg >= target) {
       high = mid;
     }
   }

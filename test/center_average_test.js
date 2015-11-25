@@ -1,6 +1,7 @@
 var assert = require('assert');
 var numbers = require('./rand.js');
 var CenterAverage = require('../build/average.js').CenterAverage;
+var fs = require('fs');
 
 // Throw enough infinities into the mix for it to be realistic.
 for (var i = 0; i < numbers.length; ++i) {
@@ -127,6 +128,44 @@ function testCenterAverage(size, numRemove) {
   }
 }
 
+function testIntegralValueForAverageBelow(size, numRemove) {
+  var chunkSize = size + 1;
+  for (var i = 0, max = numbers.length-chunkSize; i < max; i += chunkSize) {
+    var requested = numbers[i + size];
+    if (!isFinite(requested)) {
+      break;
+    }
+
+    var average = new CenterAverage(size, numRemove);
+    for (var j = i; j < i+size; ++j) {
+      average.pushValue(numbers[j]);
+    }
+    var needed = average.integralValueForAverageBelow(requested);
+
+    if (isNaN(needed) || !isFinite(needed)) {
+      // Make sure that our result is true for a bunch of random integers.
+      for (var j = 0; j < 100; ++j) {
+        var value = Math.floor(Math.random() * 100000);
+        var copy = average.copy();
+        copy.pushValue(value);
+        if (isNaN(needed)) {
+          var avg = copy.average();
+          assert(isNaN(avg) || avg >= requested);
+        } else {
+          assert(copy.average() < requested);
+        }
+      }
+    } else {
+      var copy = average.copy();
+      copy.pushValue(needed);
+      assert(copy.average() < requested);
+      copy = average.copy();
+      copy.pushValue(needed+1);
+      assert(copy.average() >= requested);
+    }
+  }
+}
+
 function testStandardDeviation(size, numRemove) {
   for (var i = 0; i < numbers.length-size; i += size) {
     var avg = new CenterAverage(size, numRemove);
@@ -176,14 +215,30 @@ function testValueNeededForAverageDNFMO3() {
   assert(isNaN(average.valueNeededForAverage(25)));
 }
 
+function testIntegralValueForAverageBelowSpecificCase() {
+  var data = JSON.parse(fs.readFileSync(__dirname + '/avg1000_data.json'));
+  var average = new CenterAverage(1000, 50);
+  for (var i = 0, len = data.length; i < len; ++i) {
+    average.pushValue(data[i]);
+  }
+  var valueNeeded = average.integralValueForAverageBelow(19870);
+  var copy = average.copy();
+  copy.pushValue(valueNeeded);
+  assert(copy.average() < 19870);
+  average.pushValue(valueNeeded + 1);
+  assert(average.average() >= 19870);
+}
+
 var sizes = [3, 5, 12, 50, 100, 1000];
 var numRemoves = [0, 1, 1, 3, 5, 50];
 for (var i = 0; i < sizes.length; ++i) {
   var size = sizes[i];
   var numRemove = numRemoves[i];
   testCenterAverage(size, numRemove);
+  testIntegralValueForAverageBelow(size, numRemove);
   testStandardDeviation(size, numRemove);
   testValueNeededForAverage(size, numRemove);
 }
 testValueNeededForAverageDNFMO3();
+testIntegralValueForAverageBelowSpecificCase();
 console.log('PASS');
